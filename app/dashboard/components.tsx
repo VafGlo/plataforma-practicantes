@@ -85,41 +85,29 @@ export const FormMessage = ({
 // SIDEBAR
 // -----------------------------------------------------
 export const Sidebar = () => {
-  <div className="h-screen w-64 bg-white border-r flex flex-col justify-between">
-  <div>
-    <div className="p-6 text-2xl font-bold text-gray-700 tracking-tight">
-      PracticeHub
-    </div>
+  return (
+    <aside className="w-64 bg-white shadow-xl border-r min-h-screen p-6">
+      <h2 className="text-xl font-bold mb-6">PracticeHub</h2>
 
-    <nav className="px-4 space-y-1">
-      <a className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition">
-        Dashboard
-      </a>
-      <a className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition">
-        Practicantes
-      </a>
-      <a className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition">
-        Proyectos
-      </a>
-      <a className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-600 hover:bg-indigo-50 hover:text-indigo-600 cursor-pointer transition">
-        Asignaciones
-      </a>
-    </nav>
-  </div>
-
-  <div className="p-4 border-t">
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-full bg-purple-200 text-purple-700 flex items-center justify-center font-bold">
-        AD
-      </div>
-      <div className="flex flex-col text-sm">
-        <span className="font-medium text-gray-700">Admin User</span>
-        <span className="text-gray-500">admin@empresa.com</span>
-      </div>
-    </div>
-  </div>
-</div>
-
+      <nav className="space-y-3">
+        <a className="block text-gray-700 hover:text-blue-600" href="/dashboard">
+          Dashboard
+        </a>
+        <a className="block text-gray-700 hover:text-blue-600" href="/practicantes">
+          Practicantes
+        </a>
+        <a className="block text-gray-700 hover:text-blue-600" href="/proyectos">
+          Proyectos
+        </a>
+        <a className="block text-gray-700 hover:text-blue-600" href="/asignaciones">
+          Asignaciones
+        </a>
+        <a className="block text-gray-700 hover:text-blue-600" href="/usuarios">
+          Usuarios
+        </a>
+      </nav>
+    </aside>
+  );
 };
 
 // -----------------------------------------------------
