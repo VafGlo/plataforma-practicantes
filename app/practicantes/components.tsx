@@ -3,147 +3,188 @@
 import { Input } from "@/app/dashboard/components";
 import { cn } from "@/lib/utils";
 import { Eye, Pencil, Trash2 } from "lucide-react";
+import Link from "next/link";
 
 export function PracticantesFilters({
   busqueda,
   setBusqueda,
+  filtroDisponibilidad, 
+  setFiltroDisponibilidad, 
   filtroArea,
   setFiltroArea,
   filtroTecnologia,
   setFiltroTecnologia,
   total,
 }: any) {
-  return (
-    <div className="bg-white p-5 rounded-xl shadow mb-6 border">
-      <div className="flex items-center gap-3 mb-3">
-        <span className="text-gray-700 font-medium">Filtros Avanzados</span>
-      </div>
+  
+  //Opciones de area
+  const areaOptions = [
+    "Todas las áreas", 
+    "Frontend",
+    "Backend",
+    "UX",
+    "QA",
+    "Mobile",
+    "Fullstack",
+  ];
+  
+  // Opciones de disponibilidad
+  const disponibilidadOptions = ["Todas", "Disponible", "No disponible"];
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        {/* Buscador */}
-        <Input
+  return (
+    <div className="flex items-center space-x-4">
+      {/* Buscador: 1er elemento */}
+      <div className="relative flex-1 min-w-[200px]">
+        <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+        <input
+          className="border border-gray-300 rounded-lg p-2 pl-10 w-full focus:ring-blue-500 focus:border-blue-500 text-sm"
           placeholder="Buscar por nombre o carrera..."
           value={busqueda}
           onChange={(e) => setBusqueda(e.target.value)}
         />
+      </div>
 
-        {/* Filtro área */}
+      {/* Dropdown de Disponibilidad: 2do elemento */}
+      <div className="min-w-[120px]">
         <select
-          className="border rounded-md p-2"
+          className="border border-gray-300 rounded-lg p-2 w-full text-sm appearance-none bg-white pr-8 focus:ring-blue-500 focus:border-blue-500"
+          value={filtroDisponibilidad}
+          onChange={(e) => setFiltroDisponibilidad(e.target.value)}
+        >
+          {disponibilidadOptions.map((option) => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Dropdown de Área: 3er elemento */}
+      <div className="min-w-[120px]">
+        <select
+          className="border border-gray-300 rounded-lg p-2 w-full text-sm appearance-none bg-white pr-8 focus:ring-blue-500 focus:border-blue-500"
           value={filtroArea}
           onChange={(e) => setFiltroArea(e.target.value)}
         >
-          <option>Todas</option>
-          <option>Frontend</option>
-          <option>Backend</option>
-          <option>UX</option>
-          <option>QA</option>
-          <option>Mobile</option>
-          <option>Fullstack</option>
+          {areaOptions.map((option) => (
+            <option key={option} value={option}>{option}</option>
+          ))}
         </select>
+      </div>
 
-        {/* Filtro tecnologías */}
-        <Input
+      {/* Input de Tecnología: 4to elemento */}
+      <div className="relative flex-1 min-w-[150px]">
+        <input
+          className="border border-gray-300 rounded-lg p-2 w-full focus:ring-blue-500 focus:border-blue-500 text-sm"
           placeholder="Filtrar por tecnología..."
           value={filtroTecnologia}
           onChange={(e) => setFiltroTecnologia(e.target.value)}
         />
-
-        {/* Mostrar conteo */}
-        <div className="text-sm text-gray-600 flex items-center">
-          Mostrando <b className="mx-1">{total}</b> practicantes
-        </div>
       </div>
+
+  
     </div>
   );
 }
+
 
 // ----------------------------------------------------------
 // TABLA LISTADO
 // ----------------------------------------------------------
 
 export function PracticantesTable({ practicantes }: any) {
-  return (
-    <div className="bg-white rounded-xl shadow border overflow-hidden">
-      <table className="w-full">
-        <thead className="bg-gray-50 text-left text-sm text-gray-600">
-          <tr>
-            <th className="px-4 py-3">Practicante</th>
-            <th className="px-4 py-3">Carrera</th>
-            <th className="px-4 py-3">Área</th>
-            <th className="px-4 py-3">Tecnologías</th>
-            <th className="px-4 py-3">Disponibilidad</th>
-            <th className="px-4 py-3 text-center">Acciones</th>
-          </tr>
-        </thead>
+  
+    return (
+        <div className="bg-white rounded-xl shadow border overflow-hidden">
+            <table className="w-full">
+                <thead className="bg-gray-50 text-left text-sm text-gray-600">
+                    <tr>
+                        <th className="px-4 py-3">Practicante</th>
+                        <th className="px-4 py-3">Carrera</th>
+                        <th className="px-4 py-3">Área</th>
+                        <th className="px-4 py-3">Tecnologías</th>
+                        <th className="px-4 py-3">Disponibilidad</th>
+                        <th className="px-4 py-3 text-center">Acciones</th>
+                    </tr>
+                </thead>
 
-        <tbody>
-          {practicantes.map((p: any) => (
-            <tr key={p.id} className="border-t hover:bg-gray-50">
-              {/* Practicante */}
-              <td className="px-4 py-4">
-                <div>
-                  <p className="font-medium">{p.nombre}</p>
-                  <p className="text-sm text-gray-500">{p.email}</p>
-                </div>
-              </td>
+                <tbody>
+                    {practicantes.map((p: any) => (
+                        <tr key={p.id} className="border-t hover:bg-gray-50">
+                            {/* Practicante */}
+                            <td className="px-4 py-4">
+                                <div className="flex items-center">
+                                    {/* Icono de Avatar (añadir aquí si lo tienes) */}
+                                    <div className="mr-3 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-medium text-lg">
+                                        {/* Podrías usar la primera letra del nombre, por ejemplo: */}
+                                        {p.nombre ? p.nombre[0].toUpperCase() : ''} 
+                                    </div>
+                                    <div>
+                                        <p className="font-medium">{p.nombre}</p>
+                                        <p className="text-sm text-gray-500">{p.email}</p>
+                                    </div>
+                                </div>
+                            </td>
 
-              {/* Carrera */}
-              <td className="px-4 py-4 text-gray-700">{p.carrera}</td>
+                            {/* Carrera */}
+                            <td className="px-4 py-4 text-gray-700">{p.carrera}</td>
 
-              {/* Área */}
-              <td className="px-4 py-4">
-                <span className="px-2 py-1 text-xs rounded-full bg-slate-200 text-slate-700">
-                  {p.area}
-                </span>
-              </td>
+                            {/* Área */}
+                            <td className="px-4 py-4">
+                                <span className="px-2 py-1 text-xs rounded-full bg-slate-200 text-slate-700">
+                                    {p.area}
+                                </span>
+                            </td>
 
-              {/* Tecnologías */}
-              <td className="px-4 py-4">
-                <div className="flex flex-wrap gap-1">
-                  {p.tecnologias?.slice(0, 3).map((t: string, i: number) => (
-                    <span
-                      key={i}
-                      className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700"
-                    >
-                      {t}
-                    </span>
-                  ))}
+                            {/* Tecnologías */}
+                            <td className="px-4 py-4">
+                                <div className="flex flex-wrap gap-1 w-[150px]"> {/* Limitar un poco el ancho */}
+                                    {p.tecnologias?.slice(0, 3).map((t: string, i: number) => (
+                                        <span
+                                            key={i}
+                                            className="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-700 whitespace-nowrap"
+                                        >
+                                            {t}
+                                        </span>
+                                    ))}
 
-                  {p.tecnologias?.length > 3 && (
-                    <span className="px-2 py-1 text-xs rounded-full bg-gray-200 text-gray-700">
-                      +{p.tecnologias.length - 3}
-                    </span>
-                  )}
-                </div>
-              </td>
+                                    {p.tecnologias?.length > 3 && (
+                                        <span className="px-2 py-1 text-xs rounded-full bg-gray-200 text-gray-700 whitespace-nowrap">
+                                            +{p.tecnologias.length - 3}
+                                        </span>
+                                    )}
+                                </div>
+                            </td>
 
-              {/* Disponibilidad */}
-              <td className="px-4 py-4">
-                <span
-                  className={cn(
-                    "px-2 py-1 text-xs rounded-full",
-                    p.estado === "disponible"
-                      ? "bg-green-200 text-green-700"
-                      : "bg-red-200 text-red-700"
-                  )}
-                >
-                  {p.estado === "disponible" ? "Disponible" : "No disponible"}
-                </span>
-              </td>
+                            {/* Disponibilidad */}
+                            <td className="px-4 py-4">
+                                <span
+                                    className={cn(
+                                        "px-3 py-1 text-xs font-semibold rounded-lg", // Se cambió a rounded-lg y font-semibold para que se parezca más
+                                        p.estado === "disponible"
+                                            ? "bg-green-600 text-white" // Fondo sólido y texto blanco
+                                            : "bg-red-600 text-white" // Fondo sólido y texto blanco
+                                    )}
+                                >
+                                    {p.estado === "disponible" ? "Disponible" : "No disponible"}
+                                </span>
+                            </td>
 
-              {/* Acciones */}
-              <td className="px-4 py-4">
-                <div className="flex justify-center gap-3">
-                  <Eye className="w-5 h-5 text-gray-600 cursor-pointer" />
-                  <Pencil className="w-5 h-5 text-blue-600 cursor-pointer" />
-                  <Trash2 className="w-5 h-5 text-red-600 cursor-pointer" />
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+                            {/* Acciones */}
+                            <td className="px-4 py-4">
+                                <div className="flex justify-center gap-3">
+                                  <Link 
+                                      href={`/dashboard/practicantes/${p.id}`}
+                                      title="Ver detalles"
+                                   ></Link>
+                                    <Eye className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800 transition" />
+                                    <Pencil className="w-5 h-5 text-blue-600 cursor-pointer hover:text-blue-800 transition" />
+                                    <Trash2 className="w-5 h-5 text-red-600 cursor-pointer hover:text-red-800 transition" />
+                                </div>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
 }
+

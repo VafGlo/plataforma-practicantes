@@ -84,28 +84,71 @@ export const FormMessage = ({
 // -----------------------------------------------------
 // SIDEBAR
 // -----------------------------------------------------
+import { LayoutDashboard, Users2, Briefcase, GitBranch } from "lucide-react";
+
 export const Sidebar = () => {
   return (
-    <aside className="w-64 bg-white shadow-xl border-r min-h-screen p-6">
-      <h2 className="text-xl font-bold mb-6">PracticeHub</h2>
+    <aside className="w-64 bg-white border-r min-h-screen flex flex-col justify-between">
+      {/* Logo + Título */}
+      <div>
+        <div className="p-6 pb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-blue-600 text-white rounded-xl flex items-center justify-center text-2xl">
+              👥
+            </div>
+            <div>
+              <h1 className="text-lg font-bold">PracticeHub</h1>
+              <p className="text-sm text-gray-500 -mt-1">Admin Panel</p>
+            </div>
+          </div>
+        </div>
 
-      <nav className="space-y-3">
-        <a className="block text-gray-700 hover:text-blue-600" href="/dashboard">
-          Dashboard
-        </a>
-        <a className="block text-gray-700 hover:text-blue-600" href="/practicantes">
-          Practicantes
-        </a>
-        <a className="block text-gray-700 hover:text-blue-600" href="/proyectos">
-          Proyectos
-        </a>
-        <a className="block text-gray-700 hover:text-blue-600" href="/asignaciones">
-          Asignaciones
-        </a>
-        <a className="block text-gray-700 hover:text-blue-600" href="/usuarios">
-          Usuarios
-        </a>
-      </nav>
+        {/* Menú */}
+        <nav className="px-4 space-y-1 mt-4">
+          <a
+            href="/dashboard"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+          >
+            <LayoutDashboard className="w-5" />
+            Dashboard
+          </a>
+
+          <a
+            href="/practicantes"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+          >
+            <Users2 className="w-5" />
+            Practicantes
+          </a>
+
+          <a
+            href="/proyectos"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+          >
+            <Briefcase className="w-5" />
+            Proyectos
+          </a>
+
+          <a
+            href="/asignaciones"
+            className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-700 hover:bg-blue-50 hover:text-blue-600"
+          >
+            <GitBranch className="w-5" />
+            Asignaciones
+          </a>
+        </nav>
+      </div>
+
+      {/* Usuario inferior */}
+      <div className="p-6 border-t flex items-center gap-3">
+        <div className="w-10 h-10 bg-purple-500 text-white font-bold rounded-full flex items-center justify-center">
+          AD
+        </div>
+        <div>
+          <p className="font-medium text-sm">Admin User</p>
+          <p className="text-xs text-gray-500">admin@empresa.com</p>
+        </div>
+      </div>
     </aside>
   );
 };
