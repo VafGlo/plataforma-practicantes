@@ -68,6 +68,22 @@ export default function PracticantesPage() {
         return;
       }
 
+      // También cargar proyectos para determinar disponibilidad real
+      const { data: proyectos } = await supabase.from("proyectos").select("id,nombre,practicantes");
+      const assignedSet = new Set<string>();
+      (proyectos || []).forEach((proj: any) => {
+        let arr: any[] = [];
+        if (Array.isArray(proj.practicantes)) arr = proj.practicantes;
+        else if (typeof proj.practicantes === "string") {
+          try {
+            arr = JSON.parse(proj.practicantes);
+          } catch {
+            arr = [];
+          }
+        }
+        arr.forEach((x: any) => assignedSet.add(String(x)));
+      });
+
       const formatted = (data as any[]).map((p) => {
         let techs: string[] = [];
         // ... (Lógica de normalización de tecnologías)
@@ -84,6 +100,8 @@ export default function PracticantesPage() {
           techs = [];
         }
 
+        const isAssigned = assignedSet.has(String(p.id)) || assignedSet.has(String(p.nombre));
+
         return {
           id: p.id,
           nombre: p.nombre ?? "",
@@ -91,7 +109,8 @@ export default function PracticantesPage() {
           email: p.email ?? "",
           area: p.area ?? "",
           tecnologias: techs,
-          estado: p.estado === "asignado" ? "asignado" : "disponible",
+          // Priorizar asignación por proyectos; si está en un proyecto => 'asignado'
+          estado: isAssigned ? "asignado" : (p.estado === "asignado" ? "asignado" : "disponible"),
         } as Practicante;
       });
 
@@ -144,7 +163,7 @@ export default function PracticantesPage() {
             <h1 className="text-3xl font-semibold mb-1">Practicantes</h1>
             <p className="text-gray-500">Gestiona el listado de practicantes</p>
           </div>
-          <button className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 shadow-md">
+          <a href="/practicantes/new" className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 shadow-md">
             <svg
               className="w-5 h-5"
               fill="none"
@@ -160,7 +179,7 @@ export default function PracticantesPage() {
               ></path>
             </svg>
             <span>Nuevo Practicante</span>
-          </button>
+          </a>
         </div>
         {/* ================================================= */}
 
@@ -203,7 +222,7 @@ export default function PracticantesPage() {
               </p>
 
               {/* Tabla de Practicantes */}
-              <PracticantesTable practicantes={filtered} />
+              <PracticantesTable practicantes={filtered} onDelete={loadPracticantes} />
             </>
           )}
         </div>
@@ -211,4 +230,3 @@ export default function PracticantesPage() {
     </div>
   );
 }
-

@@ -1,9 +1,11 @@
 "use client";
 
+import React, { useState } from "react";
 import { Input } from "@/app/dashboard/components";
 import { cn } from "@/lib/utils";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import Link from "next/link";
+import { createClient } from "@/utils/supabase/client";
 
 export function PracticantesFilters({
   busqueda,
@@ -90,7 +92,43 @@ export function PracticantesFilters({
 // TABLA LISTADO
 // ----------------------------------------------------------
 
-export function PracticantesTable({ practicantes }: any) {
+export function PracticantesTable({ practicantes, onDelete }: any) {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selected, setSelected] = useState<any | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const openDelete = (p: any) => {
+    setSelected(p);
+    setDeleteError(null);
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setModalOpen(false);
+    setSelected(null);
+    setDeleteError(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!selected) return;
+    setDeleting(true);
+    setDeleteError(null);
+    try {
+      const supabase = createClient();
+      const { error } = await supabase.from("practicantes").delete().eq("id", selected.id);
+      if (error) {
+        setDeleteError(error.message);
+      } else {
+        closeModal();
+        if (onDelete) await onDelete();
+      }
+    } catch (err: any) {
+      setDeleteError(err?.message ?? "Error al eliminar");
+    } finally {
+      setDeleting(false);
+    }
+  };
   
     return (
         <div className="bg-white rounded-xl shadow border overflow-hidden">
@@ -171,20 +209,51 @@ export function PracticantesTable({ practicantes }: any) {
                             {/* Acciones */}
                             <td className="px-4 py-4">
                                 <div className="flex justify-center gap-3">
-                                  <Link 
-                                      href={`/dashboard/practicantes/${p.id}`}
-                                      title="Ver detalles"
-                                   ></Link>
-                                    <Eye className="w-5 h-5 text-gray-600 cursor-pointer hover:text-gray-800 transition" />
-                                    <Pencil className="w-5 h-5 text-blue-600 cursor-pointer hover:text-blue-800 transition" />
-                                    <Trash2 className="w-5 h-5 text-red-600 cursor-pointer hover:text-red-800 transition" />
+                                    <Link
+                                      href={`/practicantes/${p.id}`}
+                                      title="Ver detalles"
+                                      className="text-gray-600 hover:text-gray-800 transition"
+                                      aria-label={`Ver detalles de ${p.nombre}`}
+                                    >
+                                      <Eye className="w-5 h-5 cursor-pointer" />
+                                    </Link>
+                                    <Link
+                                      href={`/practicantes/${p.id}/edit`}
+                                      title="Editar practicante"
+                                      className="text-blue-600 hover:text-blue-800 transition"
+                                      aria-label={`Editar ${p.nombre}`}
+                                    >
+                                      <Pencil className="w-5 h-5 cursor-pointer" />
+                                    </Link>
+                                    <button onClick={() => openDelete(p)} aria-label={`Eliminar ${p.nombre}`}>
+                                      <Trash2 className="w-5 h-5 text-red-600 cursor-pointer hover:text-red-800 transition" />
+                                    </button>
                                 </div>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </table>
+            {modalOpen && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center">
+                <div className="absolute inset-0 bg-black/40" onClick={closeModal} />
+                <div className="bg-white rounded-xl shadow-lg p-6 z-10 w-full max-w-md">
+                  <h3 className="text-lg font-semibold mb-2">Eliminar practicante</h3>
+                  <p className="text-sm text-gray-600 mb-4">Estás a punto de eliminar al siguiente practicante:</p>
+                  <div className="mb-4">
+                    <p className="font-medium">{selected?.nombre}</p>
+                    <p className="text-sm text-gray-500">{selected?.carrera} • {selected?.area}</p>
+                  </div>
+                  {deleteError && <p className="text-sm text-red-600 mb-2">Error: {deleteError}</p>}
+                  <div className="flex justify-end gap-3">
+                    <button onClick={closeModal} className="px-3 py-2 border rounded-lg text-gray-700 hover:bg-gray-100">Cancelar</button>
+                    <button onClick={confirmDelete} disabled={deleting} className="px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-60">
+                      {deleting ? "Eliminando..." : "Eliminar definitivamente"}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
         </div>
     );
 }
-

@@ -24,6 +24,7 @@ export default function DashboardPage() {
   const [total, setTotal] = useState<number>(0);
   const [disponibles, setDisponibles] = useState<number>(0);
   const [asignados, setAsignados] = useState<number>(0);
+  const [totalProjects, setTotalProjects] = useState<number>(0);
 
   useEffect(() => {
     loadDashboard();
@@ -33,7 +34,22 @@ export default function DashboardPage() {
     try {
       const { data: practicantes } = await supabase
         .from("practicantes")
-        .select("*");
+        .select("id,nombre,area,estado");
+
+      const { data: proyectos } = await supabase.from("proyectos").select("id,nombre,practicantes");
+
+      // Construir set de practicantes asignados desde proyectos
+      const assignedSet = new Set<string>();
+      (proyectos || []).forEach((proj: any) => {
+        let arr: any[] = [];
+        if (Array.isArray(proj.practicantes)) arr = proj.practicantes;
+        else if (typeof proj.practicantes === "string") {
+          try { arr = JSON.parse(proj.practicantes); } catch { arr = []; }
+        }
+        arr.forEach((x: any) => assignedSet.add(String(x)));
+      });
+
+      setTotalProjects((proyectos || []).length);
 
       if (!practicantes) {
         setTotal(0);
@@ -43,11 +59,13 @@ export default function DashboardPage() {
         return;
       }
 
-      const items = practicantes as unknown as Practicante[];
+      const items = (practicantes as unknown as Practicante[]) || [];
 
       setTotal(items.length);
-      setDisponibles(items.filter((p) => p.estado === "disponible").length);
-      setAsignados(items.filter((p) => p.estado === "asignado").length);
+      // Calcular asignados comprobando assignedSet (por id o por nombre en caso de que la tabla guarde nombres)
+      const assignedCount = items.filter((p) => assignedSet.has(String(p.id)) || (p.nombre && assignedSet.has(String(p.nombre)))).length;
+      setAsignados(assignedCount);
+      setDisponibles(items.length - assignedCount);
 
       // agrupar por area
       const map: Record<string, number> = {};
@@ -143,7 +161,7 @@ export default function DashboardPage() {
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-sm text-gray-600 font-medium">Total Proyectos</p>
-                <p className="mt-3 text-3xl font-bold text-indigo-600">6</p>
+                  <p className="mt-3 text-3xl font-bold text-indigo-600">{totalProjects}</p>
                 <p className="text-xs text-gray-400 mt-2">Proyectos gestionados</p>
               </div>
               <div className="text-indigo-500 bg-indigo-50 rounded-lg p-2">
@@ -237,33 +255,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
-
-        {/* Quick access */}
-        <div className="mt-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-white border rounded-xl p-6 shadow-sm">
-              <p className="text-indigo-600 font-medium">Ver Practicantes</p>
-              <p className="text-sm text-gray-500 mt-2">Gestiona el listado completo</p>
-            </div>
-
-            <div className="bg-white border rounded-xl p-6 shadow-sm">
-              <p className="text-indigo-600 font-medium">Ver Proyectos</p>
-              <p className="text-sm text-gray-500 mt-2">Administra proyectos activos</p>
-            </div>
-
-            <div className="bg-white border rounded-xl p-6 shadow-sm">
-              <p className="text-indigo-600 font-medium">Asignar Practicantes</p>
-              <p className="text-sm text-gray-500 mt-2">Distribuye recursos a proyectos</p>
-            </div>
-          </div>
-        </div>
       </main>
     </div>
   );
 }
-
-
-
-
-
-

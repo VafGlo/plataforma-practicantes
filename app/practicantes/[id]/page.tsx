@@ -1,11 +1,10 @@
 // app/dashboard/practicantes/[id]/page.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Sidebar } from "@/app/dashboard/components";
 import { createClient } from "@/utils/supabase/client";
-import { ChevronLeft, Edit, Trash2, Mail, Phone, ExternalLink } from "lucide-react";
-import Image from "next/image"; 
+import { ChevronLeft, Edit, Trash2, Mail, Phone, ExternalLink, User } from "lucide-react";
 import Link from "next/link";
 
 // Define la estructura de datos extendida
@@ -37,13 +36,16 @@ const EstadoBadge = ({ estado }: { estado: 'disponible' | 'asignado' }) => {
 };
 
 // Componente principal de la página de detalle
-export default function PracticanteDetallePage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function PracticanteDetallePage({ params }: { params: any }) {
+  // `params` llega como una Promise en client components; usar React.use() para desempaquetarla
+  const resolvedParams = React.use(params as any);
+  const { id } = resolvedParams as { id: string };
   // createClient viene de "@/utils/supabase/client"
   const supabase = createClient();
   const [practicante, setPracticante] = useState<PracticanteDetalle | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [assignedProjects, setAssignedProjects] = useState<{ id: string; nombre: string }[]>([]);
 
   useEffect(() => {
     const loadPracticante = async () => {
@@ -51,10 +53,11 @@ export default function PracticanteDetallePage({ params }: { params: { id: strin
       setError(null);
       
       try {
+        // Seleccionar todas las columnas disponibles para evitar errores si faltan algunas en la tabla
         const { data, error: supaError } = await supabase
           .from("practicantes")
-          .select("id, nombre, carrera, email, area, tecnologias, estado, descripcion, telefono, portafolio_url, soft_skills, proyectos, foto_url")
-          .eq("id", id) 
+          .select("*")
+          .eq("id", id)
           .single();
           
         if (supaError || !data) {
@@ -74,6 +77,21 @@ export default function PracticanteDetallePage({ params }: { params: { id: strin
             portafolio_url: data.portafolio_url || "https://portafolio.ejemplo.com", 
           };
           setPracticante(formattedData);
+          // Buscar proyectos asignados que contengan este practicante (por id o por nombre)
+          try {
+            const { data: proyectos } = await supabase.from('proyectos').select('id,nombre,practicantes');
+            const matched = (proyectos || []).filter((proj: any) => {
+              let arr: any[] = [];
+              if (Array.isArray(proj.practicantes)) arr = proj.practicantes;
+              else if (typeof proj.practicantes === 'string') {
+                try { arr = JSON.parse(proj.practicantes); } catch { arr = []; }
+              }
+              return arr.map(String).includes(String(data.id)) || arr.map(String).includes(String(data.nombre));
+            }).map((p: any) => ({ id: p.id, nombre: p.nombre }));
+            setAssignedProjects(matched);
+          } catch (e) {
+            setAssignedProjects([]);
+          }
         }
       } catch (err) {
         console.error("Error cargando detalle del practicante:", err);
@@ -115,7 +133,7 @@ export default function PracticanteDetallePage({ params }: { params: { id: strin
         
         {/* Header superior: Volver y Acciones */}
         <div className="flex justify-between items-center mb-6">
-          <Link href="/dashboard/practicantes" className="flex items-center text-gray-600 hover:text-blue-600 transition">
+          <Link href="/practicantes" className="flex items-center text-gray-600 hover:text-blue-600 transition">
             <ChevronLeft className="w-5 h-5 mr-1" />
             Volver
           </Link>
@@ -136,16 +154,9 @@ export default function PracticanteDetallePage({ params }: { params: { id: strin
             {/* Sección de Perfil Principal (Foto, Nombre, Contacto, Descripción) */}
             <div className="flex space-x-8 mb-8 items-start">
             
-            {/* Foto de Perfil */}
-            <div className="w-36 h-36 rounded-full overflow-hidden flex-shrink-0 border-4 border-gray-100 shadow-md">
-                <Image 
-                    src={practicante.foto_url} 
-                    alt={practicante.nombre} 
-                    width={144} 
-                    height={144} 
-                    className="object-cover w-full h-full"
-                    unoptimized={true} 
-                />
+            {/* Foto de Perfil: usar icono en lugar de imagen remota */}
+            <div className="w-36 h-36 rounded-full flex-shrink-0 border-4 border-gray-100 shadow-md bg-gray-50 flex items-center justify-center">
+              <User className="w-20 h-20 text-gray-500" />
             </div>
 
             {/* Información Básica */}
@@ -217,12 +228,21 @@ export default function PracticanteDetallePage({ params }: { params: { id: strin
             <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
                 <h2 className="text-xl font-semibold mb-4 text-gray-800">Proyectos</h2>
                 <div className="space-y-3">
-                    {practicante.proyectos.map((project, index) => (
-                        <div key={index} className="flex items-center text-gray-700 font-medium">
-                            <span className="mr-3 text-blue-600">📁</span>
-                            <span>{project}</span>
+                    {assignedProjects.length > 0 ? (
+                      assignedProjects.map((pr) => (
+                        <div key={pr.id} className="flex items-center text-gray-700 font-medium">
+                          <span className="mr-3 text-blue-600">📁</span>
+                          <Link href={`/proyectos/${pr.id}`} className="text-blue-600 hover:underline">{pr.nombre}</Link>
                         </div>
-                    ))}
+                      ))
+                    ) : (
+                      (practicante.proyectos || []).map((project, index) => (
+                        <div key={index} className="flex items-center text-gray-700 font-medium">
+                          <span className="mr-3 text-blue-600">📁</span>
+                          <span>{project}</span>
+                        </div>
+                      ))
+                    )}
                 </div>
             </div>
             

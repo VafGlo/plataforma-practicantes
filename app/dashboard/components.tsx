@@ -249,33 +249,3 @@ export const DisponibilidadChart = ({
     </div>
   );
 };
-
-// -----------------------------------------------------
-// QUICK ACCESS
-// -----------------------------------------------------
-export const QuickAccess = () => {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-      <div className="bg-white shadow border rounded-xl p-6 hover:bg-gray-50 transition cursor-pointer">
-        <p className="font-semibold">Ver Practicantes</p>
-        <p className="text-sm text-gray-500">Gestiona el listado completo</p>
-      </div>
-
-      <div className="bg-white shadow border rounded-xl p-6 hover:bg-gray-50 transition cursor-pointer">
-        <p className="font-semibold">Ver Proyectos</p>
-        <p className="text-sm text-gray-500">
-          Administra proyectos activos
-        </p>
-      </div>
-
-      <div className="bg-white shadow border rounded-xl p-6 hover:bg-gray-50 transition cursor-pointer">
-        <p className="font-semibold">Asignar Practicantes</p>
-        <p className="text-sm text-gray-500">
-          Distribuye recursos a proyectos
-        </p>
-      </div>
-    </div>
-  );
-};
-
-
