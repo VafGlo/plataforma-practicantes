@@ -21,8 +21,6 @@ export default function ProjectTable({ proyectos }: { proyectos: Proyecto[] }) {
           <th className="py-3 px-4">Cliente</th>
           <th className="py-3 px-4">Líder</th>
           <th className="py-3 px-4">Estado</th>
-          <th className="py-3 px-4">Practicantes</th>
-          <th className="py-3 px-4 text-center">Acciones</th>
         </tr>
       </thead>
 

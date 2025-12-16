@@ -3,10 +3,9 @@
 import { useEffect, useState } from "react";
 import { Sidebar } from "@/app/dashboard/components";
 import { createClient } from "@/utils/supabase/client";
-import {
-  PracticantesFilters, 
-  PracticantesTable,
-} from "./components";
+import ImportCSV from "@/app/practicantes/ImportCSV";
+import ImportPDF from "@/app/practicantes/ImportPDF";
+import { PracticantesFilters, PracticantesTable } from "./components";
 
 type Practicante = {
   id: string;
@@ -19,10 +18,11 @@ type Practicante = {
 };
 
 // Mapeo de estado para la interfaz (disponible/no disponible)
-const getDisponibilidad = (estado: 'disponible' | 'asignado'): 'Disponible' | 'No disponible' => {
-    return estado === 'disponible' ? 'Disponible' : 'No disponible';
+const getDisponibilidad = (
+  estado: "disponible" | "asignado"
+): "Disponible" | "No disponible" => {
+  return estado === "disponible" ? "Disponible" : "No disponible";
 };
-
 
 export default function PracticantesPage() {
   const supabase = createClient();
@@ -31,9 +31,9 @@ export default function PracticantesPage() {
   const [practicantes, setPracticantes] = useState<Practicante[]>([]);
   const [busqueda, setBusqueda] = useState("");
   // Estado para el primer dropdown (Disponibilidad: Todas / Disponible / No disponible)
-  const [filtroDisponibilidad, setFiltroDisponibilidad] = useState("Todas"); 
+  const [filtroDisponibilidad, setFiltroDisponibilidad] = useState("Todas");
   // Estado para el segundo dropdown (Área: Todas las áreas / Frontend / Backend, etc.)
-  const [filtroArea, setFiltroArea] = useState("Todas las áreas"); 
+  const [filtroArea, setFiltroArea] = useState("Todas las áreas");
   const [filtroTecnologia, setFiltroTecnologia] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -69,7 +69,9 @@ export default function PracticantesPage() {
       }
 
       // También cargar proyectos para determinar disponibilidad real
-      const { data: proyectos } = await supabase.from("proyectos").select("id,nombre,practicantes");
+      const { data: proyectos } = await supabase
+        .from("proyectos")
+        .select("id,nombre,practicantes");
       const assignedSet = new Set<string>();
       (proyectos || []).forEach((proj: any) => {
         let arr: any[] = [];
@@ -94,13 +96,17 @@ export default function PracticantesPage() {
             const parsed = JSON.parse(p.tecnologias);
             techs = Array.isArray(parsed) ? parsed : [];
           } catch {
-            techs = p.tecnologias.split(",").map((s: string) => s.trim()).filter(Boolean);
+            techs = p.tecnologias
+              .split(",")
+              .map((s: string) => s.trim())
+              .filter(Boolean);
           }
         } else {
           techs = [];
         }
 
-        const isAssigned = assignedSet.has(String(p.id)) || assignedSet.has(String(p.nombre));
+        const isAssigned =
+          assignedSet.has(String(p.id)) || assignedSet.has(String(p.nombre));
 
         return {
           id: p.id,
@@ -110,7 +116,11 @@ export default function PracticantesPage() {
           area: p.area ?? "",
           tecnologias: techs,
           // Priorizar asignación por proyectos; si está en un proyecto => 'asignado'
-          estado: isAssigned ? "asignado" : (p.estado === "asignado" ? "asignado" : "disponible"),
+          estado: isAssigned
+            ? "asignado"
+            : p.estado === "asignado"
+            ? "asignado"
+            : "disponible",
         } as Practicante;
       });
 
@@ -133,12 +143,12 @@ export default function PracticantesPage() {
 
     // Filtro por Área
     const matchArea = filtroArea === "Todas las áreas" || p.area === filtroArea;
-    
+
     // Filtro por Disponibilidad
     const currentDisponibilidad = getDisponibilidad(p.estado);
-    const matchDisponibilidad = 
-        filtroDisponibilidad === "Todas" || 
-        filtroDisponibilidad === currentDisponibilidad;
+    const matchDisponibilidad =
+      filtroDisponibilidad === "Todas" ||
+      filtroDisponibilidad === currentDisponibilidad;
 
     // Filtro por Tecnología
     const matchTech =
@@ -163,7 +173,16 @@ export default function PracticantesPage() {
             <h1 className="text-3xl font-semibold mb-1">Practicantes</h1>
             <p className="text-gray-500">Gestiona el listado de practicantes</p>
           </div>
-          <a href="/practicantes/new" className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 shadow-md">
+
+          <div className="flex gap-3">
+            <ImportCSV onSuccess={loadPracticantes} />
+            <ImportPDF practicantes={filtered} />
+          </div>
+
+          <a
+            href="/practicantes/new"
+            className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 shadow-md"
+          >
             <svg
               className="w-5 h-5"
               fill="none"
@@ -194,7 +213,20 @@ export default function PracticantesPage() {
               {/* Contenedor de filtros con el estilo de tarjeta (card) - Fondo blanco y sombra sutil */}
               <div className="bg-white p-6 rounded-xl shadow-md mb-6 border border-gray-100">
                 <h3 className="text-lg font-medium mb-4 text-gray-700 flex items-center">
-                  <svg className="w-5 h-5 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707v5.186a1 1 0 01-1.293.93l-2-0.5A1 1 0 018 18v-5.186a1 1 0 00-.293-.707L4.293 7.293A1 1 0 014 6.586V4z"></path></svg>
+                  <svg
+                    className="w-5 h-5 mr-2 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707v5.186a1 1 0 01-1.293.93l-2-0.5A1 1 0 018 18v-5.186a1 1 0 00-.293-.707L4.293 7.293A1 1 0 014 6.586V4z"
+                    ></path>
+                  </svg>
                   Filtros Avanzados
                 </h3>
                 {/* 
@@ -212,17 +244,21 @@ export default function PracticantesPage() {
                   // Filtro 3: Tecnología
                   filtroTecnologia={filtroTecnologia}
                   setFiltroTecnologia={setFiltroTecnologia}
-                  total={filtered.length} 
+                  total={filtered.length}
                 />
               </div>
 
               {/* Mensaje de conteo */}
               <p className="text-gray-500 mb-4 ml-1">
-                Mostrando **{filtered.length}** de {practicantes.length} practicantes
+                Mostrando **{filtered.length}** de {practicantes.length}{" "}
+                practicantes
               </p>
 
               {/* Tabla de Practicantes */}
-              <PracticantesTable practicantes={filtered} onDelete={loadPracticantes} />
+              <PracticantesTable
+                practicantes={filtered}
+                onDelete={loadPracticantes}
+              />
             </>
           )}
         </div>
