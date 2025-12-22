@@ -4,6 +4,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "../../../providers/AuthProvider";
+import { Input, Button } from "@/app/dashboard/components";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -51,12 +52,12 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit}>
           <label className="text-sm font-medium text-gray-700">Correo electrónico</label>
-          <input
+          <Input
             type="email"
-            placeholder="tu@empresa.com"
-            className="w-full p-3 mt-1 mb-4 bg-gray-100 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 text-black"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            placeholder="tu@empresa.com"
+            className="w-full p-3 mt-1 mb-4 bg-gray-100 rounded-lg outline-none focus:ring-2 focus:ring-indigo-500 text-black"
           />
 
           <label className="text-sm font-medium text-gray-700">Contraseña</label>
@@ -70,13 +71,13 @@ export default function LoginPage() {
 
           {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
 
-          <button
+          <Button
             type="submit"
             disabled={loading}
             className="w-full bg-black text-white py-3 rounded-lg font-medium hover:bg-gray-900 transition disabled:opacity-50"
           >
             {loading ? "Iniciando..." : "Iniciar sesión"}
-          </button>
+          </Button>
         </form>
 
         <p className="text-center mt-6">

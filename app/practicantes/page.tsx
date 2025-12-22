@@ -6,6 +6,8 @@ import { createClient } from "@/utils/supabase/client";
 import ImportCSV from "@/app/practicantes/ImportCSV";
 import ImportPDF from "@/app/practicantes/ImportPDF";
 import { PracticantesFilters, PracticantesTable } from "./components";
+import Link from "next/link";
+import { Button } from "@/app/dashboard/components";
 
 type Practicante = {
   id: string;
@@ -179,26 +181,25 @@ export default function PracticantesPage() {
             <ImportPDF practicantes={filtered} />
           </div>
 
-          <a
-            href="/practicantes/new"
-            className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition duration-200 shadow-md"
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-              ></path>
-            </svg>
-            <span>Nuevo Practicante</span>
-          </a>
+          <Link href="/practicantes/new">
+            <Button className="inline-flex items-center space-x-2 rounded-lg shadow-md">
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                ></path>
+              </svg>
+              <span>Nuevo Practicante</span>
+            </Button>
+          </Link>
         </div>
         {/* ================================================= */}
 

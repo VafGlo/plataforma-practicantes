@@ -257,3 +257,18 @@ export function PracticantesTable({ practicantes, onDelete }: any) {
         </div>
     );
 }
+
+export const Button = ({
+  children,
+  variant = "primary",
+  className,
+  ...props
+}: React.ButtonHTMLAttributes<HTMLButtonElement> & { variant?: "primary" | "outline" | "danger" }) => {
+  const variantClass =
+    variant === "primary" ? "btn btn-primary" : variant === "danger" ? "btn btn-danger" : "btn btn-outline";
+  return (
+    <button className={cn(variantClass, className)} {...props}>
+      {children}
+    </button>
+  );
+};
